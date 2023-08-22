@@ -1,5 +1,5 @@
 <script setup lang="ts"></script>
 
 <template>
-	<div>Secret version</div>
+	<v-container> Version </v-container>
 </template>
