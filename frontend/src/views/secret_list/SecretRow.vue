@@ -4,7 +4,6 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 const props = defineProps<{
 	secret: {
-		isActive: boolean;
 		id: number;
 		name: string;
 		description: string;
