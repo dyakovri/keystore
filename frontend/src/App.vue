@@ -1,3 +1,5 @@
-<script setup lang="ts"></script>
-
-<template><div></div></template>
+<template>
+	<v-app>
+		<RouterView />
+	</v-app>
+</template>
