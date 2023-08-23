@@ -67,7 +67,7 @@ const generateString = (length: number) => {
 							variant="underlined"
 							label="Secret name"
 							:readonly="readonly"
-							@change.stop="event => changeKey(key, event.target.value)"
+							@change.stop="(event: any) => changeKey(key, event.target.value)"
 						>
 						</v-text-field>
 					</v-col>
@@ -80,7 +80,7 @@ const generateString = (length: number) => {
 							counter
 							autocomplete="off"
 							:readonly="readonly"
-							@change.stop="event => changeValue(key, event.target.value)"
+							@change.stop="(event: any) => changeValue(key, event.target.value)"
 						>
 						</v-text-field>
 						<v-tooltip :text="!value[key].show ? 'Показать значение' : 'Скрыть значение'" location="bottom"
