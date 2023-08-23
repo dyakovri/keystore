@@ -15,11 +15,6 @@ const props = defineProps<{
 
 <template>
 	<v-list-item @click="router.push(`/sec/${props.secretId}/ver/${props.secretVersion.id}`)">
-		<!-- <template #prepend>
-			<v-avatar color="grey-lighten-1">
-				<v-icon color="white">md:commit</v-icon>
-			</v-avatar>
-		</template> -->
 		<v-list-item-title> {{ props.secretVersion.number }}. {{ props.secretVersion.description }} </v-list-item-title>
 
 		<v-list-item-subtitle>

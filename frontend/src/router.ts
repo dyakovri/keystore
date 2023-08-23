@@ -11,6 +11,11 @@ const routes: RouteRecordRaw[] = [
 		meta: { isSecire: true },
 	},
 	{
+		path: '/sec/create',
+		component: () => import('@/views/secret_create/_SecretCreateView.vue'),
+		meta: { isSecire: true },
+	},
+	{
 		path: '/sec/:sec_id(\\d+)',
 		component: () => import('@/views/secret/_SecretView.vue'),
 		props: true,

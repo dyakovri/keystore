@@ -1,18 +1,20 @@
 <script setup lang="ts">
 import { ref, Ref } from 'vue';
 
+defineEmits(['save']);
 const props = withDefaults(
 	defineProps<{
 		secretVersion: {
-			id: number;
-			number: number;
-			description: string;
-			create_ts: string;
 			value: { [key: string]: string };
 		};
 		readonly?: boolean;
 	}>(),
-	{ readonly: false },
+	{
+		readonly: false,
+		secretVersion: () => ({
+			value: {},
+		}),
+	},
 );
 
 const value: Ref<{ key: string; value: string; show: boolean }[]> = ref([]);
@@ -135,7 +137,7 @@ const generateString = (length: number) => {
 			<v-btn icon="add" variant="flat" color="white" style="place-self: start start" @click="createKey()"></v-btn>
 			<v-col />
 			<v-btn class="mx-2" color="variant" @click="reset()">Сбросить изменения</v-btn>
-			<v-btn class="mx-2" @click="console.log(value)">Сохранить изменения</v-btn>
+			<v-btn class="mx-2" @click="$emit('save', value)">Сохранить изменения</v-btn>
 		</v-row>
 	</v-container>
 </template>
