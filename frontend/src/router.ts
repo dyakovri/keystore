@@ -8,24 +8,24 @@ const routes: RouteRecordRaw[] = [
 	{
 		path: '/sec',
 		component: () => import('@/views/secret_list/_SecretListView.vue'),
-		meta: { isSecire: true },
+		meta: { isSecure: true },
 	},
 	{
 		path: '/sec/create',
 		component: () => import('@/views/secret_create/_SecretCreateView.vue'),
-		meta: { isSecire: true },
+		meta: { isSecure: true },
 	},
 	{
 		path: '/sec/:sec_id(\\d+)',
 		component: () => import('@/views/secret/_SecretView.vue'),
 		props: true,
-		meta: { isSecire: true },
+		meta: { isSecure: true },
 	},
 	{
 		path: '/sec/:sec_id(\\d+)/ver/:ver_id(\\d+)',
 		component: () => import('@/views/secret_version/_SecretVersionView.vue'),
 		props: true,
-		meta: { isSecire: true },
+		meta: { isSecure: true },
 	},
 	{
 		path: '/auth',
@@ -44,8 +44,6 @@ export const router = createRouter({
 });
 
 router.beforeEach(async to => {
-	console.log(to);
-
 	// Заменяем токен на новый из хэш-параметров
 	if (to.hash.startsWith('#token=')) {
 		localStorage.setItem('token', to.hash.substring(7));
@@ -53,7 +51,7 @@ router.beforeEach(async to => {
 	}
 
 	// Проверяем что есть токен в localStorage для секьюрных ручек
-	if (to.meta.isSecure && !localStorage.getItem('token')) {
+	if (to.meta.isSecure && (localStorage.getItem('token') || '') == '') {
 		return { path: '/auth' };
 	}
 });
