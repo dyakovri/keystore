@@ -1,9 +1,8 @@
 from api.routes.models.base import Base
-from pydantic import Json
 
 
 class VersionPost(Base):
-    value: Json
+    value: dict[str, str]
     description: str | None = None
 
 class VersionGet(VersionPost):

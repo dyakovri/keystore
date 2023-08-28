@@ -5,7 +5,3 @@ class ACLGet(Base):
     owner: str
     rw: list[str]
     r: list[str]
-
-
-class ACLPut(ACLGet):
-    pass

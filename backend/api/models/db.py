@@ -37,6 +37,7 @@ class Secret(BaseDbModel):
 
 class Version(BaseDbModel):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    secret_id: Mapped[int] = mapped_column(Integer, ForeignKey(Secret.id), nullable=False)
     num: Mapped[int] = mapped_column(Integer, primary_key=False, nullable=False)
     description: Mapped[str] = mapped_column(String, nullable=True)
     value: Mapped[JSON] = mapped_column(JSON, nullable=False)
