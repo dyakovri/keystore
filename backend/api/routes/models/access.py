@@ -1,4 +1,4 @@
-from  api.routes.models.base import Base
+from api.routes.models.base import Base
 
 
 class ACLGet(Base):

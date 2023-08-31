@@ -1,11 +1,13 @@
 from __future__ import annotations
+
 import re
 
-from sqlalchemy.ext.declarative import as_declarative, declared_attr
-from sqlalchemy.orm import Mapped, mapped_column, Session, Query
 from sqlalchemy import Integer, not_
-from api.exceptions import ObjectNotFound
 from sqlalchemy.exc import NoResultFound
+from sqlalchemy.ext.declarative import as_declarative, declared_attr
+from sqlalchemy.orm import Mapped, Query, Session, mapped_column
+
+from api.exceptions import ObjectNotFound
 
 
 @as_declarative()

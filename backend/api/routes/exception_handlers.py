@@ -1,7 +1,9 @@
-from .base import app
-from api.exceptions import ObjectNotFound
-from starlette.responses import JSONResponse
 import starlette
+from starlette.responses import JSONResponse
+
+from api.exceptions import ObjectNotFound
+
+from .base import app
 
 
 @app.exception_handler(ObjectNotFound)

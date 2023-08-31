@@ -1,7 +1,8 @@
-import gunicorn.app.base
-from api.routes.base import app
 import argparse
 
+import gunicorn.app.base
+
+from api.routes.base import app
 
 
 class HttpServer(gunicorn.app.base.BaseApplication):
@@ -17,11 +18,10 @@ class HttpServer(gunicorn.app.base.BaseApplication):
 
     def load(self):
         return self.application
-    
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()    
+    parser = argparse.ArgumentParser()
     parser.add_argument('--num-workers', type=int, default=5)
     parser.add_argument('--port', type=str, default='8080')
     args = parser.parse_args()

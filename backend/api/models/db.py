@@ -1,9 +1,12 @@
-from enum import StrEnum
-from api.models.base import BaseDbModel
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import Integer, String, DateTime, JSON, ForeignKey, Enum
 from datetime import datetime
+from enum import StrEnum
 from functools import total_ordering
+
+from sqlalchemy import JSON, DateTime, Enum, ForeignKey, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from api.models.base import BaseDbModel
+
 
 @total_ordering
 class Access(StrEnum):
@@ -18,7 +21,7 @@ class Access(StrEnum):
         if not self._is_valid_operand(other):
             raise TypeError()
         return other == self
-    
+
     def __lt__(self, other: str) -> bool:
         if not self._is_valid_operand(other):
             raise TypeError()
@@ -41,6 +44,7 @@ class Version(BaseDbModel):
     num: Mapped[int] = mapped_column(Integer, primary_key=False, nullable=False)
     description: Mapped[str] = mapped_column(String, nullable=True)
     value: Mapped[JSON] = mapped_column(JSON, nullable=False)
+
 
 class SecretOwners(BaseDbModel):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)

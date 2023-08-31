@@ -1,11 +1,15 @@
-from fastapi import APIRouter, Depends, HTTPException
-from .models.security import Seal
-from auth_lib.fastapi import UnionAuth
-from api.utils.random_string import random_string
 import hashlib
+
+from auth_lib.fastapi import UnionAuth
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi_sqlalchemy import db
-from api.models.db import SecretKey
+
 from api import config
+from api.models.db import SecretKey
+from api.utils.random_string import random_string
+
+from .models.security import Seal
+
 
 security = APIRouter(prefix="")
 
@@ -21,9 +25,9 @@ def validate_password(password: str, hashed_password: str, salt: str = "") -> bo
 
 
 @security.post("/install", response_model=Seal)
-async def install(_ = Depends(UnionAuth(scopes=["keystore.installation"]))):
+async def install(_=Depends(UnionAuth(scopes=["keystore.installation"]))):
     if db.session.query(SecretKey).filter(SecretKey.id == 1).one_or_none():
-         raise HTTPException(status_code=403, detail="Secret key already exists")
+        raise HTTPException(status_code=403, detail="Secret key already exists")
     with config.token.get_lock():
         config.token.value = random_string()
     _secret = SecretKey(id=1, secret=hash_password(config.token.value))
@@ -33,19 +37,19 @@ async def install(_ = Depends(UnionAuth(scopes=["keystore.installation"]))):
 
 
 @security.post("/seal", response_model=Seal)
-async def seal(_token: Seal, _ = Depends(UnionAuth(scopes=["keystore.installation"]))):
+async def seal(_token: Seal, _=Depends(UnionAuth(scopes=["keystore.installation"]))):
     hashed = db.session.query(SecretKey).filter(SecretKey.id == 1).one_or_none()
     if not hashed:
-         raise HTTPException(status_code=400, detail="System hasn't initialized")
+        raise HTTPException(status_code=400, detail="System hasn't initialized")
     if not validate_password(_token.token, hashed.secret):
-         raise HTTPException(status_code=403, detail="Incorrect token")
+        raise HTTPException(status_code=403, detail="Incorrect token")
     with config.token.get_lock():
         config.token.value = ""
     return Seal(token=_token)
 
 
 @security.post("/unseal", response_model=Seal)
-async def unseal(_token: Seal,  _ = Depends(UnionAuth(scopes=["keystore.installation"]))):
+async def unseal(_token: Seal, _=Depends(UnionAuth(scopes=["keystore.installation"]))):
     hashed = db.session.query(SecretKey).filter(SecretKey.id == 1).one_or_none()
     if not hashed:
         raise HTTPException(status_code=400, detail="System hasn't initialized")

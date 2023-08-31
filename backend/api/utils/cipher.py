@@ -1,12 +1,12 @@
-import os
-import stat
 import argparse
 import logging
+import os
 import shutil
+import stat
 
 from crypto import Random
-from crypto.Hash import SHA256
 from crypto.Cipher import AES
+from crypto.Hash import SHA256
 
 
 class EmptyCipher(Exception):
@@ -52,21 +52,22 @@ class AESCipher:
         :param data: Data with padding
         :return: Unpadded data
         """
-        return data[:-ord(data[len(data) - 1:])]
+        return data[: -ord(data[len(data) - 1 :])]
 
-    def encrypt(self, data: bytes) -> bytes:
+    def encrypt(self, data: bytes, salt: str) -> bytes:
         """
         AES-256 encrypt data with hash stored in this class
 
         :param data: Data to be encrypted.
         :return: Encrypted data
         """
+        data += salt
         data = self.__pad(data)
         iv = Random.new().read(AES.block_size)
         aes = AES.new(self.__hash, AES.MODE_CBC, iv)
         return iv + aes.encrypt(data)
 
-    def decrypt(self, data: bytes) -> bytes:
+    def decrypt(self, data: bytes, salt: str) -> bytes:
         """
         AES-256 decrypt data with hash stored in this class.
 
@@ -74,8 +75,10 @@ class AESCipher:
         :return: Decrypted data
         """
         try:
-            iv = data[:AES.block_size]
+            iv = data[: AES.block_size]
             aes = AES.new(self.__hash, AES.MODE_CBC, iv)
-            return self.__unpad(aes.decrypt(data[AES.block_size:]))
+            data = self.__unpad(aes.decrypt(data[AES.block_size :]))
+            data.removesuffix(salt)
+            return data
         except ValueError as e:
             raise DecryptException() from e
