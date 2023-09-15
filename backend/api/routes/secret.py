@@ -38,7 +38,7 @@ async def get_secret(name: str, auth=Depends(UnionAuth(scopes=[]))) -> SecretGet
 @secret.get("", response_model=list[SecretGet])
 async def get_secrets(auth=Depends(UnionAuth(scopes=[]))) -> list[SecretGet]:
     secrets = (
-        Secret.query(session=db.session).join(SecretOwners).filter(SecretOwners.owner_id == auth["id"]).one_or_none()
+        Secret.query(session=db.session).join(SecretOwners).filter(SecretOwners.owner_id == auth["id"]).all()
     )
     adapter = TypeAdapter(list[SecretGet])
     return adapter.validate_python(secrets)

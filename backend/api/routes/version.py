@@ -19,7 +19,8 @@ versions = APIRouter(prefix="/secret/{name}/version")
 @versions.get("", response_model=list[VersionGet])
 async def get_versions(name: str, auth=Depends(UnionAuth(scopes=[]))):
     importlib.reload(config)
-    cipher = AESCipher(password=config.token.value)
+    password = config.token.value.decode(encoding = "utf-8")
+    cipher = AESCipher(password=password)
     versions = db.session.query(Version).join(Secret).filter(Secret.name == name).all()
     owner = (
         db.session.query(SecretOwners)
@@ -61,7 +62,8 @@ async def get_version(number: str, name: str, auth=Depends(UnionAuth(scopes=[]))
 @versions.post("", response_model=VersionGet)
 async def create_version(name: str, data: VersionPost, auth=Depends(UnionAuth(scopes=[]))):
     importlib.reload(config)
-    cipher = AESCipher(password=config.token.value)
+    password = config.token.value.decode(encoding = "utf-8")
+    cipher = AESCipher(password=password)
     _secret = (
         db.session.query(Secret)
         .join(SecretOwners)
@@ -70,19 +72,20 @@ async def create_version(name: str, data: VersionPost, auth=Depends(UnionAuth(sc
     )
     if not _secret:
         raise HTTPException(status_code=404, detail="Secret not found")
-    update_scope = Access("RW")
     _secret_owner = (
         db.session.query(SecretOwners)
         .filter(SecretOwners.secret_id == _secret.id, SecretOwners.owner_id == auth["id"])
         .one()
     )
-    if Access(_secret_owner.access) < update_scope:
+    if _secret_owner.access == "R":
         raise HTTPException(status_code=403, detail="Not enough scopes, RW required")
+    encrypted_secret = []
     for item in data.value:
         salt = random_string()
-        item["value"] = cipher.encrypt(item["value"], salt)
-        item["salt"] = salt
+        value = cipher.encrypt(bytes(item.value, "utf-8"), bytes(salt, "utf-8"))
+        print(value.decode("ascii"))
+        encrypted_secret.append({"key": item.key, "value": value, "salt": salt})
     num = db.session.query(Version).filter(Version.secret_id == _secret.id).count() + 1
-    version = Version(**data.model_dump(), secret_id=_secret.id, num=num)
+    version = Version(value=encrypted_secret, secret_id=_secret.id, num=num, description=data.description)
     db.session.add(version)
     db.session.flush()

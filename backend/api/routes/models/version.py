@@ -1,8 +1,12 @@
 from api.routes.models.base import Base
 
+class Version(Base):
+    key: str
+    value: str
+
 
 class VersionPost(Base):
-    value: list[dict[str, str]]
+    value: list[Version]
     description: str | None = None
 
 

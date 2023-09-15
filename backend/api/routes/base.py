@@ -4,7 +4,10 @@ from fastapi_sqlalchemy import DBSessionMiddleware
 
 from api import __version__
 from api.settings import get_settings
-
+from api.routes.acl import acl
+from api.routes.secret import secret
+from api.routes.security import security
+from api.routes.version import versions
 
 settings = get_settings()
 app = FastAPI(
@@ -31,3 +34,8 @@ app.add_middleware(
     allow_methods=settings.CORS_ALLOW_METHODS,
     allow_headers=settings.CORS_ALLOW_HEADERS,
 )
+
+app.include_router(acl)
+app.include_router(secret)
+app.include_router(security)
+app.include_router(versions)

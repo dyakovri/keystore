@@ -4,9 +4,9 @@ import os
 import shutil
 import stat
 
-from crypto import Random
-from crypto.Cipher import AES
-from crypto.Hash import SHA256
+from Crypto import Random
+from Crypto.Cipher import AES
+from Crypto.Hash import SHA256
 
 
 class EmptyCipher(Exception):

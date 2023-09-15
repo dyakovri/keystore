@@ -1,33 +1,17 @@
 from datetime import datetime
-from enum import StrEnum
+from enum import Enum
 from functools import total_ordering
 
-from sqlalchemy import JSON, DateTime, Enum, ForeignKey, Integer, String
+from sqlalchemy import JSON, DateTime, Enum as DbEnum, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from api.models.base import BaseDbModel
 
 
-@total_ordering
-class Access(StrEnum):
+class Access(str, Enum):
     OWNER = "OWNER"
     RW = "RW"
     R = "R"
-
-    def _is_valid_operand(self, other):
-        return isinstance(other, str) and other in [e.value for e in Access]
-
-    def __eq__(self, other: object) -> bool:
-        if not self._is_valid_operand(other):
-            raise TypeError()
-        return other == self
-
-    def __lt__(self, other: str) -> bool:
-        if not self._is_valid_operand(other):
-            raise TypeError()
-        _levels = {"R": 0, "RW": 1, "OWNER": 2}
-        _self = int(_levels[self])
-        return _self.__lt__(_levels[other])
 
 
 class Secret(BaseDbModel):
@@ -50,7 +34,7 @@ class SecretOwners(BaseDbModel):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     secret_id: Mapped[int] = mapped_column(Integer, ForeignKey(Secret.id), nullable=False)
     owner_id: Mapped[int] = mapped_column(Integer, nullable=False)
-    access: Mapped[Access] = mapped_column(Enum(Access, native_enum=False))
+    access: Mapped[Access] = mapped_column(DbEnum(Access, native_enum=False))
 
 
 class SecretKey(BaseDbModel):

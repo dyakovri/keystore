@@ -29,8 +29,9 @@ async def install(_=Depends(UnionAuth(scopes=["keystore.installation"]))):
     if db.session.query(SecretKey).filter(SecretKey.id == 1).one_or_none():
         raise HTTPException(status_code=403, detail="Secret key already exists")
     with config.token.get_lock():
-        config.token.value = random_string()
-    _secret = SecretKey(id=1, secret=hash_password(config.token.value))
+        secret = random_string()
+        config.token.value = bytes(secret, encoding="utf-8")
+    _secret = SecretKey(id=1, secret=hash_password(secret))
     db.session.add(_secret)
     db.session.flush()
     return Seal(token=config.token.value)
@@ -44,8 +45,8 @@ async def seal(_token: Seal, _=Depends(UnionAuth(scopes=["keystore.installation"
     if not validate_password(_token.token, hashed.secret):
         raise HTTPException(status_code=403, detail="Incorrect token")
     with config.token.get_lock():
-        config.token.value = ""
-    return Seal(token=_token)
+        config.token.value = b"/"
+    return Seal(token=_token.token)
 
 
 @security.post("/unseal", response_model=Seal)
@@ -56,5 +57,5 @@ async def unseal(_token: Seal, _=Depends(UnionAuth(scopes=["keystore.installatio
     if not validate_password(_token.token, hashed.secret):
         raise HTTPException(status_code=403, detail="Incorrect token")
     with config.token.get_lock():
-        config.token.value = _token.token
-    return Seal(token=_token)
+        config.token.value = bytes(_token.token, encoding="utf-8")
+    return Seal(token=_token.token)
