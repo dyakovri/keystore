@@ -9,7 +9,7 @@ from api import config
 from api.models.db import Access, Secret, SecretOwners, Version
 from api.utils.cipher import AESCipher
 from api.utils.random_string import random_string
-
+import base64
 from .models.version import VersionGet, VersionPost
 
 
@@ -34,16 +34,20 @@ async def get_versions(name: str, auth=Depends(UnionAuth(scopes=[]))):
     for version in versions:
         _result = []
         for item in version.value:
-            _secret = {"key": item["key"], "value": cipher.decrypt(item["value"], item["salt"])}
+            value: str = cipher.decrypt(base64.b64decode(item["value"]), bytes(item["salt"], encoding="utf-8"))     
+            value = value.decode("utf-8")    
+            value = value.removesuffix(item["salt"])
+            _secret = {"key": item["key"], "value": value}
             _result.append(_secret)
-        result.append(_result)
+        result.append({"id": version.id, "num": version.num, "value": _result})
     return result
 
 
 @versions.get("/{number}", response_model=VersionGet)
 async def get_version(number: str, name: str, auth=Depends(UnionAuth(scopes=[]))):
     importlib.reload(config)
-    cipher = AESCipher(password=config.token.value)
+    password = config.token.value.decode(encoding = "utf-8")
+    cipher = AESCipher(password=password)
     version = db.session.query(Version).join(Secret).filter(Version.num == number, Secret.name == name).one_or_none()
     owner = (
         db.session.query(SecretOwners)
@@ -54,9 +58,12 @@ async def get_version(number: str, name: str, auth=Depends(UnionAuth(scopes=[]))
         raise HTTPException(status_code=404, detail="Secret not found")
     result = []
     for item in version.value:
-        _secret = {"key": item["key"], "value": cipher.decrypt(item["value"], item["salt"])}
+        value: str = cipher.decrypt(base64.b64decode(item["value"]), bytes(item["salt"], encoding="utf-8"))     
+        value = value.decode("utf-8")    
+        value = value.removesuffix(item["salt"])
+        _secret = {"key": item["key"], "value": value}
         result.append(_secret)
-    return result
+    return {"id": version.id, "num": version.num, "value": result}
 
 
 @versions.post("", response_model=VersionGet)
@@ -64,6 +71,7 @@ async def create_version(name: str, data: VersionPost, auth=Depends(UnionAuth(sc
     importlib.reload(config)
     password = config.token.value.decode(encoding = "utf-8")
     cipher = AESCipher(password=password)
+    assert password
     _secret = (
         db.session.query(Secret)
         .join(SecretOwners)
@@ -83,9 +91,10 @@ async def create_version(name: str, data: VersionPost, auth=Depends(UnionAuth(sc
     for item in data.value:
         salt = random_string()
         value = cipher.encrypt(bytes(item.value, "utf-8"), bytes(salt, "utf-8"))
-        print(value.decode("ascii"))
+        value = base64.b64encode(value).decode("utf-8")
         encrypted_secret.append({"key": item.key, "value": value, "salt": salt})
     num = db.session.query(Version).filter(Version.secret_id == _secret.id).count() + 1
     version = Version(value=encrypted_secret, secret_id=_secret.id, num=num, description=data.description)
     db.session.add(version)
     db.session.flush()
+    return version
