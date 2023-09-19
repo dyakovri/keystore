@@ -39,7 +39,7 @@ async def get_versions(name: str, auth=Depends(UnionAuth(scopes=[]))):
             value = value.removesuffix(item["salt"])
             _secret = {"key": item["key"], "value": value}
             _result.append(_secret)
-        result.append({"id": version.id, "num": version.num, "value": _result})
+        result.append({"id": version.id, "num": version.num, "value": _result, "description": version.description})
     return result
 
 
@@ -63,7 +63,7 @@ async def get_version(number: str, name: str, auth=Depends(UnionAuth(scopes=[]))
         value = value.removesuffix(item["salt"])
         _secret = {"key": item["key"], "value": value}
         result.append(_secret)
-    return {"id": version.id, "num": version.num, "value": result}
+    return {"id": version.id, "num": version.num, "value": result, "description": version.description}
 
 
 @versions.post("", response_model=VersionGet)
