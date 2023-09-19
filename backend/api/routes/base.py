@@ -3,11 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi_sqlalchemy import DBSessionMiddleware
 
 from api import __version__
-from api.settings import get_settings
 from api.routes.acl import acl
 from api.routes.secret import secret
 from api.routes.security import security
 from api.routes.version import versions
+from api.settings import get_settings
+
 
 settings = get_settings()
 app = FastAPI(

@@ -1,14 +1,9 @@
-import importlib
-from copy import deepcopy
-
 from auth_lib.fastapi import UnionAuth
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi_sqlalchemy import db
 
-from api import config
-from api.models.db import Access, Secret, SecretOwners, Version
-from api.utils.cipher import AESCipher
-from api.utils.random_string import random_string
+from api.models.db import Secret, SecretOwners
+from api.utils.security import token_security
 
 from .models.access import ACLGet, ACLPost
 
@@ -17,7 +12,7 @@ acl = APIRouter(prefix="/secret/{name}/access")
 
 
 @acl.get("", response_model=ACLGet)
-async def get_acl(name: str, auth=Depends(UnionAuth(scopes=[]))):
+async def get_acl(name: str, auth=Depends(UnionAuth(scopes=[])), _=Depends(token_security)):
     owners = db.session.query(SecretOwners).join(Secret).filter(Secret.name == name).all()
     result: dict[str, list[str] | str] = {}
     result["RW"] = []
@@ -36,7 +31,7 @@ async def get_acl(name: str, auth=Depends(UnionAuth(scopes=[]))):
 
 
 @acl.post("", response_model=ACLGet)
-async def update_acl(name: str, new: ACLPost, auth=Depends(UnionAuth(scopes=[]))):
+async def update_acl(name: str, new: ACLPost, auth=Depends(UnionAuth(scopes=[])), _=Depends(token_security)):
     owner = (
         db.session.query(SecretOwners)
         .join(Secret)

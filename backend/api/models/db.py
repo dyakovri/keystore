@@ -1,9 +1,10 @@
 from datetime import datetime
 from enum import Enum
-from functools import total_ordering
 
-from sqlalchemy import JSON, DateTime, Enum as DbEnum, ForeignKey, Integer, String
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import JSON, DateTime
+from sqlalchemy import Enum as DbEnum
+from sqlalchemy import ForeignKey, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column
 
 from api.models.base import BaseDbModel
 

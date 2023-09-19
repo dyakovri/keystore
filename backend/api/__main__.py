@@ -1,9 +1,9 @@
 import argparse
-from fastapi import FastAPI
 
 import gunicorn.app.base
 
 from api.routes.base import app
+
 
 class HttpServer(gunicorn.app.base.BaseApplication):
     def __init__(self, app, options=None):
@@ -26,7 +26,5 @@ if __name__ == '__main__':
     parser.add_argument('--num-workers', type=int, default=5)
     parser.add_argument('--port', type=str, default='8080')
     args = parser.parse_args()
-    options = {
-        'bind': '%s:%s' % ('0.0.0.0', args.port),
-        'workers': args.num_workers}
+    options = {'bind': '%s:%s' % ('0.0.0.0', args.port), 'workers': args.num_workers}
     HttpServer(app, options).run()

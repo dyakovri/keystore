@@ -1,9 +1,3 @@
-import argparse
-import logging
-import os
-import shutil
-import stat
-
 from Crypto import Random
 from Crypto.Cipher import AES
 from Crypto.Hash import SHA256
