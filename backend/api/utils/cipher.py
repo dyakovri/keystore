@@ -1,3 +1,5 @@
+import hashlib
+
 from Crypto import Random
 from Crypto.Cipher import AES
 from Crypto.Hash import SHA256
@@ -76,3 +78,13 @@ class AESCipher:
             return data
         except ValueError as e:
             raise DecryptException() from e
+
+
+def hash_password(password: str, salt: str = "") -> str:
+    enc = hashlib.pbkdf2_hmac("sha256", password.encode(), salt.encode(), 100_000)
+    return enc.hex()
+
+
+def validate_password(password: str, hashed_password: str, salt: str = "") -> bool:
+    """Проверяет, что хеш пароля совпадает с хешем из БД"""
+    return hash_password(password, salt) == hashed_password

@@ -5,11 +5,10 @@ from api.routes.models.base import Base
 
 class SecretPost(Base):
     name: str
-    description: str | None = None
+    description: str
 
 
 class SecretGet(SecretPost):
-    id: int
     create_ts: datetime
     update_ts: datetime
 

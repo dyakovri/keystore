@@ -1,10 +1,10 @@
 import importlib
 
-from api import config
 from fastapi.exceptions import HTTPException
+
+from api.config import get_token
 
 
 def token_security():
-    importlib.reload(config)
-    if config.token.value == b"/":
+    if get_token() == b'':
         raise HTTPException(status_code=403, detail="Instance locked")

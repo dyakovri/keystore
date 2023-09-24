@@ -1,4 +1,4 @@
-from .db import Secret, SecretKey, SecretOwners, Version
+from . import db
 
 
-__all__ = ["Secret", "Version", "SecretKey", "SecretOwners"]
+__all__ = ["db"]
